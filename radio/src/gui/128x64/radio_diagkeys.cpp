@@ -38,9 +38,10 @@ void menuRadioDiagKeys(event_t event)
 {
   SIMPLE_MENU(STR_MENU_RADIO_SWITCHES, menuTabGeneral, MENU_RADIO_SWITCHES_TEST, 1);
 
+#if !defined(PCBSTM32F412ZG)
   lcdDrawText(14*FW, MENU_HEADER_HEIGHT+2*FH, STR_VTRIM);
-
-  for (uint8_t i=0; i<9; i++) {
+#endif
+  for (uint8_t i=0; i<8; i++) {
     coord_t y;
 
     if (i < NUM_TRIMS_KEYS) {
@@ -57,7 +58,11 @@ void menuRadioDiagKeys(event_t event)
         lcdDrawTextAtIndex(0, y, STR_VKEYS, (TRM_BASE-1-i), 0);
         displayKeyState(5*FW+4, y, KEY_MENU+(TRM_BASE-1-i));
       }
-#elif defined(PCBXLITE)
+#elif defined(PCBSTM32F412ZG)
+      y = MENU_HEADER_HEIGHT + FH*i;
+      lcdDrawTextAtIndex(0, y, STR_VKEYS, (TRM_BASE-1-i), 0);
+      displayKeyState(5*FW+2, y, KEY_SHIFT+(TRM_BASE-1-i));
+#elif defined(PCBXLITE) 
       y = MENU_HEADER_HEIGHT + FH*i;
       lcdDrawTextAtIndex(0, y, STR_VKEYS, (TRM_BASE-1-i), 0);
       displayKeyState(5*FW+2, y, KEY_SHIFT+(TRM_BASE-1-i));
@@ -68,7 +73,21 @@ void menuRadioDiagKeys(event_t event)
 #endif
     }
 
-#if defined(PCBTARANIS)
+#if defined(PCBSTM32F412ZG)
+	  if (i < 6) {
+		  for (uint8_t j = 0; j < 4; j++)
+		  {
+			  uint8_t ii = i + j * 6;		  
+			  if (ii < NUM_SWITCHES) {
+				  if (SWITCH_EXISTS(ii)) {
+					  getvalue_t val = getValue(MIXSRC_FIRST_SWITCH + ii);
+					  getvalue_t sw = ((val < 0) ? 3*ii + 1 : ((val == 0) ? 3*ii + 2 : 3*ii + 3));
+					  drawSwitch(7*FW + j*FW * 3 + j * FW / 2, y + FH/2, sw, 0);
+				  }
+			  }
+		  }
+	  }
+#elif defined(PCBTARANIS)
     if (i < NUM_SWITCHES) {
       if (SWITCH_EXISTS(i)) {
         getvalue_t val = getValue(MIXSRC_FIRST_SWITCH+i);

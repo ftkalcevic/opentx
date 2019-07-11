@@ -734,7 +734,7 @@ PACK(struct ModelHeader {
 #if defined(COLORLCD)
 typedef uint16_t swconfig_t;
 typedef uint32_t swarnstate_t;
-#elif defined(PCBX9E)
+#elif defined(PCBX9E) || defined(PCBSTM32F412ZG)
 typedef uint64_t swconfig_t;
 typedef uint64_t swarnstate_t;
 typedef uint32_t swarnenable_t;
@@ -942,7 +942,7 @@ PACK(struct TrainerData {
     EXTRA_GENERAL_FIELDS_ARM \
     uint8_t  serial2Mode:4; \
     uint8_t  slidersConfig:4; \
-    uint8_t  potsConfig; /* two bits per pot */\
+    uint32_t  potsConfig; /* two bits per pot (11 pots)*/ \
     uint8_t  backlightColor; \
     swarnstate_t switchUnlockStates; \
     swconfig_t switchConfig; \
@@ -1086,6 +1086,7 @@ static inline void check_struct()
   CHKSIZE(FrSkyTelemetryData, 104);
   CHKSIZE(ModelHeader, 12);
   CHKSIZE(CurveData, 4);
+#elif defined(PCBSTM32F412ZG)
 #elif defined(PCBTARANIS)
   CHKSIZE(MixData, 22);
   CHKSIZE(ExpoData, 19);
@@ -1188,6 +1189,8 @@ static inline void check_struct()
 #if defined(PCBXLITE)
   CHKSIZE(RadioData, 844);
   CHKSIZE(ModelData, 6025);
+#elif PCB == STM32F412ZG
+  // don't worry about this for now.
 #elif defined(PCBX7)
   CHKSIZE(RadioData, 850);
   CHKSIZE(ModelData, 6025);

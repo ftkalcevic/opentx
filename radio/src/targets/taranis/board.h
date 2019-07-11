@@ -95,7 +95,10 @@ extern "C" {
 
 #define LUA_MEM_MAX                     (0)    // max allowed memory usage for complete Lua  (in bytes), 0 means unlimited
 
-#if defined(STM32F4)
+#if defined(PCBSTM32F412ZG)
+  #define PERI1_FREQUENCY               48000000
+  #define PERI2_FREQUENCY               96000000
+#elif defined(STM32F4)
   #define PERI1_FREQUENCY               42000000
   #define PERI2_FREQUENCY               84000000
 #else
@@ -103,9 +106,13 @@ extern "C" {
   #define PERI2_FREQUENCY               60000000
 #endif
 
-#define TIMER_MULT_APB1                 2
-#define TIMER_MULT_APB2                 2
-
+#if defined(PCBSTM32F412ZG)
+  #define TIMER_MULT_APB1                 2
+  #define TIMER_MULT_APB2                 1
+#else
+  #define TIMER_MULT_APB1                 2
+  #define TIMER_MULT_APB2                 2
+#endif
 #define strcpy_P strcpy
 #define strcat_P strcat
 
@@ -158,7 +165,12 @@ void sdMount(void);
 void sdDone(void);
 void sdPoll10ms(void);
 uint32_t sdMounted(void);
-#define SD_CARD_PRESENT()               ((SD_GPIO_PRESENT_GPIO->IDR & SD_GPIO_PRESENT_GPIO_PIN) == 0)
+#if defined(PCBSTM32F412ZG)
+	// sdcard breakout board didn't have a "present" pin
+	#define SD_CARD_PRESENT()               (true)
+#else
+	#define SD_CARD_PRESENT()               ((SD_GPIO_PRESENT_GPIO->IDR & SD_GPIO_PRESENT_GPIO_PIN) == 0)
+#endif
 #endif
 
 // Flash Write driver
@@ -170,12 +182,22 @@ uint32_t isFirmwareStart(const uint8_t * buffer);
 uint32_t isBootloaderStart(const uint8_t * buffer);
 
 // Pulses driver
-#define INTERNAL_MODULE_ON()            GPIO_SetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
-#define INTERNAL_MODULE_OFF()           GPIO_ResetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
-#define EXTERNAL_MODULE_ON()            GPIO_SetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
-#define EXTERNAL_MODULE_OFF()           GPIO_ResetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
-#define IS_INTERNAL_MODULE_ON()         (GPIO_ReadInputDataBit(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN) == Bit_SET)
-#define IS_EXTERNAL_MODULE_ON()         (GPIO_ReadInputDataBit(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN) == Bit_SET)
+#if defined(PCBSTM32F412ZG)
+	#define IS_INTERNAL_MODULE_ON()         (false)
+	#define IS_EXTERNAL_MODULE_ON()         (true)
+	#define INTERNAL_MODULE_ON()            ((void)0)
+	#define INTERNAL_MODULE_OFF()           ((void)0)
+	#define EXTERNAL_MODULE_ON()            ((void)0)
+	#define EXTERNAL_MODULE_OFF()           ((void)0)
+#else
+	#define EXTERNAL_MODULE_ON()            GPIO_SetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
+	#define EXTERNAL_MODULE_OFF()           GPIO_ResetBits(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN)
+	#define IS_INTERNAL_MODULE_ON()         (GPIO_ReadInputDataBit(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN) == Bit_SET)
+	#define IS_EXTERNAL_MODULE_ON()         (GPIO_ReadInputDataBit(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN) == Bit_SET)
+	#define INTERNAL_MODULE_ON()            GPIO_SetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
+	#define INTERNAL_MODULE_OFF()           GPIO_ResetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
+#endif
+
 #if defined(INTMODULE_USART) && defined(EXTMODULE_USART)
   #define IS_UART_MODULE(port)          (true)
 #elif defined(INTMODULE_USART)
@@ -200,7 +222,7 @@ void disable_crossfire( uint32_t module_index );
   #define TRAINER_CONNECTED()           (true)
 #elif defined(PCBX7)
   #define TRAINER_CONNECTED()           (GPIO_ReadInputDataBit(TRAINER_DETECT_GPIO, TRAINER_DETECT_GPIO_PIN) == Bit_SET)
-#elif defined(PCBXLITE)
+#elif defined(PCBXLITE) || defined(PCBSTM32F412ZG)
   #define TRAINER_CONNECTED()           false // there is no Trainer jack on Taranis X-Lite
 #else
   #define TRAINER_CONNECTED()           (GPIO_ReadInputDataBit(TRAINER_DETECT_GPIO, TRAINER_DETECT_GPIO_PIN) == Bit_RESET)
@@ -234,14 +256,14 @@ int sbusGetByte(uint8_t * byte);
 // Keys driver
 enum EnumKeys
 {
-#if defined(PCBXLITE)
+#if defined(PCBXLITE) || defined(PCBSTM32F412ZG)
   KEY_SHIFT,
 #else
   KEY_MENU,
 #endif
   KEY_EXIT,
   KEY_ENTER,
-#if defined(PCBXLITE)
+#if defined(PCBXLITE) || defined(PCBSTM32F412ZG)
   KEY_DOWN,
   KEY_UP,
   KEY_RIGHT,
@@ -271,7 +293,7 @@ enum EnumKeys
   #define KEY_DOWN                      KEY_PLUS
   #define KEY_RIGHT                     KEY_PLUS
   #define KEY_LEFT                      KEY_MINUS
-#elif defined(PCBXLITE)
+#elif defined(PCBXLITE) || defined(PCBSTM32F412ZG)
   #define KEY_PLUS                      KEY_RIGHT
   #define KEY_MINUS                     KEY_LEFT
 #else
@@ -316,27 +338,27 @@ enum EnumSwitchesPositions
   SW_SD0,
   SW_SD1,
   SW_SD2,
-#if !defined(PCBX7) && !defined(PCBXLITE)
+#if !defined(PCBX7) && !defined(PCBXLITE) && !defined(PCBSTM32F412ZG)
   SW_SE0,
   SW_SE1,
   SW_SE2,
 #endif
-#if !defined(PCBXLITE)
+#if !defined(PCBXLITE) && !defined(PCBSTM32F412ZG)
   SW_SF0,
   SW_SF1,
   SW_SF2,
 #endif
-#if !defined(PCBX7) && !defined(PCBXLITE)
+#if !defined(PCBX7) && !defined(PCBXLITE) && !defined(PCBSTM32F412ZG)
   SW_SG0,
   SW_SG1,
   SW_SG2,
 #endif
-#if !defined(PCBXLITE)
+#if !defined(PCBXLITE) && !defined(PCBSTM32F412ZG)
   SW_SH0,
   SW_SH1,
   SW_SH2,
 #endif
-#if defined(PCBX9E)
+#if defined(PCBX9E) || defined(PCBSTM32F412ZG)
   SW_SI0,
   SW_SI1,
   SW_SI2,
@@ -368,9 +390,31 @@ enum EnumSwitchesPositions
   SW_SR1,
   SW_SR2,
 #endif
+#if defined(PCBSTM32F412ZG)
+  SW_SS0,
+  SW_SS1,
+  SW_SS2,
+  SW_ST0,
+  SW_ST1,
+  SW_ST2,
+  SW_SU0,
+  SW_SU1,
+  SW_SU2,
+  SW_SV0,
+  SW_SV1,
+  SW_SV2,
+  SW_S_W0,	// clash with logical switch SW_SW1, SW_SW2, etc
+  SW_S_W1,
+  SW_S_W2,
+  SW_SX0,
+  SW_SX1,
+  SW_SX2,
+#endif
 };
 #if defined(PCBXLITE)
   #define NUM_SWITCHES                  4
+#elif defined(PCBSTM32F412ZG)
+  #define NUM_SWITCHES                  24 
 #elif defined(PCBX7)
   #define NUM_SWITCHES                  6
 #elif defined(PCBX9E)
@@ -426,6 +470,17 @@ enum Analogs {
   SLIDER2,
   SLIDER3,
   SLIDER4,
+#elif defined(PCBSTM32F412ZG)
+  POT3,
+  POT4,
+  POT5,
+  POT6,
+  POT7,
+  POT8,
+  POT9,
+  POT10,
+  POT11,
+  POT_LAST = POT11,
 #else
   POT3,
   POT_LAST = POT3,
@@ -451,8 +506,14 @@ enum Analogs {
   void sticksPwmRead(uint16_t * values);
   extern volatile uint32_t pwm_interrupt_count;
   #define NUM_TRIMS_KEYS                4
+#elif defined(PCBSTM32F412ZG)
+  #define NUM_PWMSTICKS                 0
+  #define NUM_TRIMS_KEYS                0
+  #define STICKS_PWM_ENABLED()         (false)
 #else
+  #define NUM_PWMSTICKS                 0
   #define NUM_TRIMS_KEYS                8
+  #define STICKS_PWM_ENABLED()         (false)
 #endif
 
 enum CalibratedAnalogs {
@@ -500,7 +561,9 @@ uint16_t getBatteryVoltage();   // returns current battery voltage in 10mV steps
   #define BATT_SCALE                    131
 #elif defined(PCBX7)
   #define BATT_SCALE                    123
-#else
+#elif defined(PCBSTM32F412ZG)
+  #define BATT_SCALE                    100
+#else 
   #define BATT_SCALE                    150
 #endif
 
@@ -520,7 +583,7 @@ uint32_t pwrPressedDuration(void);
 #endif
 void pwrResetHandler(void);
 
-#if defined(SIMU)
+#if defined(SIMU) || defined(PCBSTM32F412ZG)
 #define UNEXPECTED_SHUTDOWN()           false
 #else
 #define UNEXPECTED_SHUTDOWN()           (WAS_RESET_BY_WATCHDOG() || g_eeGeneral.unexpectedShutdown)

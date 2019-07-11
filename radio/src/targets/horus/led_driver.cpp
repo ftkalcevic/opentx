@@ -31,7 +31,7 @@ void ledInit()
   GPIO_Init(LED_GPIO, &GPIO_InitStructure);
 }
 
-#if defined(PCBX12S)
+#if defined(PCBX12S) ||defined(PCBSTM32F412ZG)
 void ledOff()
 {
   GPIO_InitTypeDef GPIO_InitStructure;

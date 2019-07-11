@@ -35,6 +35,8 @@
   #include "lua/lua_exports_x7.inc"
 #elif defined(PCBXLITE)
   #include "lua/lua_exports_xlite.inc"
+#elif defined(PCBSTM32F412ZG)
+  #include "lua/lua_exports_stm32f4disco.inc"
 #elif defined(PCBTARANIS)
   #include "lua/lua_exports_x9d.inc"
 #endif
@@ -1406,7 +1408,7 @@ const luaR_value_entry opentxConstants[] = {
   { "EVT_MODEL_FIRST",  EVT_KEY_FIRST(KEY_MODEL) },
   { "EVT_SYS_FIRST",  EVT_KEY_FIRST(KEY_RADIO) },
   { "EVT_RTN_FIRST",  EVT_KEY_FIRST(KEY_EXIT) },
-#elif defined(PCBXLITE)
+#elif defined(PCBXLITE) || defined(PCBSTM32F412ZG)
   { "EVT_DOWN_FIRST", EVT_KEY_FIRST(KEY_DOWN) },
   { "EVT_UP_FIRST", EVT_KEY_FIRST(KEY_UP) },
   { "EVT_LEFT_FIRST", EVT_KEY_FIRST(KEY_LEFT) },

@@ -50,12 +50,14 @@ void telemetryPortInit(uint32_t baudrate, uint8_t mode)
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
   GPIO_Init(TELEMETRY_GPIO, &GPIO_InitStructure);
 
+#if defined(TELEMETRY_DIR_GPIO_PIN)
   GPIO_InitStructure.GPIO_Pin = TELEMETRY_DIR_GPIO_PIN;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
   GPIO_Init(TELEMETRY_DIR_GPIO, &GPIO_InitStructure);
   TELEMETRY_DIR_INPUT();
-
+#endif
+	
   USART_InitStructure.USART_BaudRate = baudrate;
   if (mode & TELEMETRY_SERIAL_8E2) {
     USART_InitStructure.USART_WordLength = USART_WordLength_9b;

@@ -74,6 +74,9 @@ uint32_t readKeys()
 
 uint32_t readTrims()
 {
+#if defined(PCBSTM32F412ZG)
+	return 0;
+#else
   uint32_t result = 0;
 
   if (~TRIMS_GPIO_REG_LHL & TRIMS_GPIO_PIN_LHL)
@@ -102,16 +105,18 @@ uint32_t readTrims()
   // TRACE("readTrims(): result=0x%02x", result);
 
   return result;
+#endif
 }
 
 uint8_t trimDown(uint8_t idx)
 {
+	return 0;
   return readTrims() & (1 << idx);
 }
 
 bool keyDown()
 {
-  return readKeys() || readTrims();
+	return readKeys();// || readTrims();
 }
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
@@ -206,6 +211,11 @@ uint32_t switchState(uint8_t index)
     ADD_3POS_CASE(D, 3);
 #if defined(PCBXLITE)
     // no SWF, SWG and SWH on XLITE
+#elif defined(PCBSTM32F412ZG)		  
+    ADD_3POS_CASE(E, 4);
+    ADD_3POS_CASE(F, 5);
+    ADD_3POS_CASE(G, 6);
+    ADD_3POS_CASE(H, 7);
 #elif defined(PCBX7)
     ADD_2POS_CASE(F);
     ADD_2POS_CASE(H);
@@ -215,7 +225,7 @@ uint32_t switchState(uint8_t index)
     ADD_3POS_CASE(G, 6);
     ADD_2POS_CASE(H);
 #endif
-#if defined(PCBX9E)
+#if defined(PCBX9E) || defined(PCBSTM32F412ZG)		  
     ADD_3POS_CASE(I, 8);
     ADD_3POS_CASE(J, 9);
     ADD_3POS_CASE(K, 10);
@@ -227,7 +237,14 @@ uint32_t switchState(uint8_t index)
     ADD_3POS_CASE(Q, 16);
     ADD_3POS_CASE(R, 17);
 #endif
-
+#if defined(PCBSTM32F412ZG)		  
+    ADD_3POS_CASE(S, 18);
+    ADD_3POS_CASE(T, 19);
+    ADD_3POS_CASE(U, 20);
+    ADD_3POS_CASE(V, 21);
+    ADD_3POS_CASE(_W, 22);
+    ADD_3POS_CASE(X, 23);
+#endif
     default:
       break;
   }

@@ -138,7 +138,7 @@ enum MenuModelSetupItems {
 #define MODEL_SETUP_RANGE_OFS            4*FW+3
 #define MODEL_SETUP_SET_FAILSAFE_OFS     7*FW-2
 
-#if defined(PCBTARANIS)
+#if defined(PCBTARANIS) && !defined(PCBSTM32F412ZG)
   #define CURRENT_MODULE_EDITED(k)       (k>=ITEM_MODEL_TRAINER_LABEL ? TRAINER_MODULE : (k>=ITEM_MODEL_EXTERNAL_MODULE_LABEL ? EXTERNAL_MODULE : INTERNAL_MODULE))
 #elif defined(PCBSKY9X) && !defined(REVA)
   #define CURRENT_MODULE_EDITED(k)       (k>=ITEM_MODEL_EXTRA_MODULE_LABEL ? EXTRA_MODULE : EXTERNAL_MODULE)
@@ -208,7 +208,7 @@ enum MenuModelSetupItems {
 #elif defined(CPUM64)
   #define CURSOR_ON_CELL                 (true)
   #define MODEL_SETUP_MAX_LINES          ((IS_PPM_PROTOCOL(protocol)||IS_DSM2_PROTOCOL(protocol)||IS_PXX_PROTOCOL(protocol)) ? HEADER_LINE+ITEM_MODEL_SETUP_MAX : HEADER_LINE+ITEM_MODEL_SETUP_MAX-1)
-#elif defined(PCBXLITE)
+#elif defined(PCBXLITE) || defined(PCBSTM32F412ZG)
   #define CURSOR_ON_CELL                 (menuHorizontalPosition >= 0)
   #define MODEL_SETUP_MAX_LINES          ((IS_PPM_PROTOCOL(protocol)||IS_DSM2_PROTOCOL(protocol)||IS_PXX_PROTOCOL(protocol)) ? HEADER_LINE+ITEM_MODEL_SETUP_MAX : HEADER_LINE+ITEM_MODEL_SETUP_MAX-1)
 #else
@@ -257,7 +257,7 @@ void menuModelSetup(event_t event)
 #endif
 
   int8_t old_editMode = s_editMode;
-
+#define ANTENNA_ROW
 #if defined(PCBTARANIS)
   MENU_TAB({
     HEADER_LINE_COLUMNS
@@ -337,7 +337,7 @@ void menuModelSetup(event_t event)
     reusableBuffer.modelsetup.r9mPower = g_model.moduleData[EXTERNAL_MODULE].pxx.power;
   }
 #endif
-
+ 
   uint8_t sub = menuVerticalPosition - HEADER_LINE;
   int8_t editMode = s_editMode;
 
@@ -601,7 +601,7 @@ void menuModelSetup(event_t event)
           char c;
 
           lcdDrawTextAlignedLeft(y, STR_SWITCHWARNING);
-#if defined(PCBXLITE)
+#if defined(PCBXLITE) || defined(PCBSTM32F412ZG)
           lcdDrawText(LCD_W, y, "<]", RIGHT);
           if (attr) {
             if (menuHorizontalPosition > NUM_SWITCHES)
@@ -640,7 +640,7 @@ void menuModelSetup(event_t event)
               if (!READ_ONLY() && event==EVT_KEY_BREAK(KEY_ENTER) && line && l_posHorz==current) {
                 g_model.switchWarningEnable ^= (1 << i);
                 storageDirty(EE_MODEL);
-#if defined(PCBXLITE)
+#if defined(PCBXLITE) || defined(PCBSTM32F412ZG)
                 s_editMode = 0;
 #endif
               }
@@ -946,7 +946,7 @@ void menuModelSetup(event_t event)
       break;
 #endif
 
-#if defined(PCBTARANIS)
+#if defined(PCBTARANIS) && !defined(PCBSTM32F412ZG)
       case ITEM_MODEL_TRAINER_LABEL:
         lcdDrawTextAlignedLeft(y, STR_TRAINER);
         break;
@@ -1015,7 +1015,7 @@ void menuModelSetup(event_t event)
         break;
 #endif
 
-#if defined(PCBTARANIS)
+#if defined(PCBTARANIS) && !defined(PCBSTM32F412ZG)
       case ITEM_MODEL_TRAINER_CHANNELS:
       case ITEM_MODEL_INTERNAL_MODULE_CHANNELS:
 #endif
@@ -1147,7 +1147,7 @@ void menuModelSetup(event_t event)
               if (s_editMode > 0) {
                 if (l_posHorz == 1) {
                   if (IS_MODULE_R9M(moduleIdx) || (IS_MODULE_XJT(moduleIdx) && g_model.moduleData[moduleIdx].rfProtocol== RF_PROTO_X16)) {
-#if defined(PCBXLITE)
+#if defined(PCBXLITE) || defined(PCBSTM32F412ZG)
                     if (EVT_KEY_MASK(event) == KEY_ENTER) {
 #elif defined(PCBSKY9X) || defined(AR9X)
                     if (event ==  EVT_KEY_FIRST(KEY_ENTER)) {

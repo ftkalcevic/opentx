@@ -37,17 +37,21 @@ void extmoduleCrossfireStart(void);
 
 void init_pxx(uint32_t port)
 {
+#if defined(INTMODULE_PULSES)
   if (port == INTERNAL_MODULE)
     intmodulePxxStart();
   else
+#endif
     extmodulePxxStart();
 }
 
 void disable_pxx(uint32_t port)
 {
+#if defined(INTMODULE_PULSES)
   if (port == INTERNAL_MODULE)
     intmoduleStop();
   else
+#endif
     extmoduleStop();
 }
 
@@ -93,17 +97,21 @@ void disable_ppm(uint32_t port)
 
 void init_no_pulses(uint32_t port)
 {
+#if defined(INTERNAL_PULSES)
   if (port == INTERNAL_MODULE)
     intmoduleNoneStart();
   else
+#endif
     extmoduleNoneStart();
 }
 
 void disable_no_pulses(uint32_t port)
 {
+#if defined(INTERNAL_PULSES)
   if (port == INTERNAL_MODULE)
     intmoduleStop();
   else
+#endif
     extmoduleStop();
 }
 

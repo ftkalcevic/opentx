@@ -265,6 +265,8 @@ void generalDefault()
   g_eeGeneral.potsConfig = 0x0F;    // S1 and S2 = pot without detent
 #elif defined(PCBX7)
   g_eeGeneral.potsConfig = 0x07;    // S1 = pot without detent, S2 = pot with detent
+#elif defined(PCBSTM32F412ZG)
+  g_eeGeneral.potsConfig = 0b1111111111111111111111;     // P1 - P11 without detent
 #elif defined(PCBTARANIS)
   g_eeGeneral.potsConfig = 0x05;    // S1 and S2 = pots with detent
   g_eeGeneral.slidersConfig = 0x03; // LS and RS = sliders with detent
@@ -272,6 +274,13 @@ void generalDefault()
 
 #if defined(PCBXLITE)
   g_eeGeneral.switchConfig = (SWITCH_2POS << 6) + (SWITCH_2POS << 4) + (SWITCH_3POS << 2) + (SWITCH_3POS << 0); // 2x3POS, 2x2POS
+#elif defined(PCBSTM32F412ZG)
+  g_eeGeneral.switchConfig = ((swconfig_t)SWITCH_3POS << 6) +  ((swconfig_t)SWITCH_3POS << 4) +  ((swconfig_t)SWITCH_3POS << 2) +  ((swconfig_t)SWITCH_3POS << 0) +
+							 ((swconfig_t)SWITCH_3POS << 14) + ((swconfig_t)SWITCH_3POS << 12) + ((swconfig_t)SWITCH_3POS << 10) + ((swconfig_t)SWITCH_3POS << 8) +
+							 ((swconfig_t)SWITCH_3POS << 22) + ((swconfig_t)SWITCH_3POS << 20) + ((swconfig_t)SWITCH_3POS << 18) + ((swconfig_t)SWITCH_3POS << 16) +
+							 ((swconfig_t)SWITCH_3POS << 30) + ((swconfig_t)SWITCH_3POS << 28) + ((swconfig_t)SWITCH_3POS << 26) + ((swconfig_t)SWITCH_3POS << 24) +
+							 ((swconfig_t)SWITCH_3POS << 38) + ((swconfig_t)SWITCH_3POS << 36) + ((swconfig_t)SWITCH_3POS << 34) + ((swconfig_t)SWITCH_3POS << 32) +
+							 ((swconfig_t)SWITCH_3POS << 46) + ((swconfig_t)SWITCH_3POS << 44) + ((swconfig_t)SWITCH_3POS << 42) + ((swconfig_t)SWITCH_3POS << 40)	;  // 24x3POS
 #elif defined(PCBX7)
   g_eeGeneral.switchConfig = 0x000006ff; // 4x3POS, 1x2POS, 1xTOGGLE
 #elif defined(PCBTARANIS) || defined(PCBHORUS)
@@ -1343,6 +1352,8 @@ void alert(const pm_char * title, const pm_char * msg ALERT_SOUND_ARG)
   int8_t trimGvar[NUM_TRIMS] = { -1, -1, -1, -1 };
 #elif NUM_TRIMS == 2
   int8_t trimGvar[NUM_TRIMS] = { -1, -1 };
+#else
+  int8_t trimGvar[NUM_TRIMS];
 #endif
 #endif
 
@@ -2899,7 +2910,9 @@ uint32_t pwrCheck()
             return e_power_on;
           }
         }
+#ifdef HAPTIC
         haptic.play(15, 3, PLAY_NOW);
+#endif
         pwr_check_state = PWR_CHECK_OFF;
         return e_power_off;
       }

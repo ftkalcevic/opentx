@@ -23,6 +23,27 @@
 void eepromPageWrite(uint8_t* pBuffer, uint16_t WriteAddr, uint8_t NumByteToWrite);
 void eepromWaitEepromStandbyState(void);
 
+#define I2C_TIMEOUT_MAX 1000
+bool I2C_WaitEvent(uint32_t event)
+{
+	uint32_t timeout = I2C_TIMEOUT_MAX;
+	while (!I2C_CheckEvent(I2C, event)) {
+		if ((timeout--) == 0) return false;
+	}
+	return true;
+}
+
+bool I2C_WaitEventCleared(uint32_t event)
+{
+	uint32_t timeout = I2C_TIMEOUT_MAX;
+	while (I2C_CheckEvent(I2C, event)) {
+		if ((timeout--) == 0) return false;
+	}
+	return true;
+}
+
+
+
 void i2cInit()
 {
   I2C_DeInit(I2C);
@@ -35,6 +56,7 @@ void i2cInit()
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
   GPIO_Init(I2C_WP_GPIO, &GPIO_InitStructure);
   GPIO_ResetBits(I2C_WP_GPIO, I2C_WP_GPIO_PIN);
+
 
   I2C_InitTypeDef I2C_InitStructure;
   I2C_InitStructure.I2C_ClockSpeed = I2C_SPEED;
@@ -55,25 +77,6 @@ void i2cInit()
   GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
   GPIO_Init(I2C_SPI_GPIO, &GPIO_InitStructure);
-}
-
-#define I2C_TIMEOUT_MAX 1000
-bool I2C_WaitEvent(uint32_t event)
-{
-  uint32_t timeout = I2C_TIMEOUT_MAX;
-  while (!I2C_CheckEvent(I2C, event)) {
-    if ((timeout--) == 0) return false;
-  }
-  return true;
-}
-
-bool I2C_WaitEventCleared(uint32_t event)
-{
-  uint32_t timeout = I2C_TIMEOUT_MAX;
-  while (I2C_CheckEvent(I2C, event)) {
-    if ((timeout--) == 0) return false;
-  }
-  return true;
 }
 
 /**

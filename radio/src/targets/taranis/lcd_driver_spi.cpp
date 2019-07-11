@@ -40,67 +40,153 @@ void lcdWriteCommand(uint8_t byte)
 {
   LCD_A0_LOW();
   LCD_NCS_LOW();
-  while ((SPI3->SR & SPI_SR_TXE) == 0) {
+	while ((LCD_SPI->SR & SPI_SR_TXE) == 0) {
     // Wait
   }
-  (void)SPI3->DR; // Clear receive
+	(void)LCD_SPI->DR;  // Clear receive
   LCD_SPI->DR = byte;
-  while ((SPI3->SR & SPI_SR_RXNE) == 0) {
+	while ((LCD_SPI->SR & SPI_SR_RXNE) == 0) {
     // Wait
   }
   LCD_NCS_HIGH();
+}
+
+void lcdWriteData(uint8_t byte)
+{
+	LCD_A0_HIGH();
+	LCD_NCS_LOW();
+	while ((LCD_SPI->SR & SPI_SR_TXE) == 0) {
+		// Wait
+	}
+	(void)LCD_SPI->DR;   // Clear receive
+	LCD_SPI->DR = byte;
+	while ((LCD_SPI->SR & SPI_SR_RXNE) == 0) {
+		// Wait
+	}
+	LCD_NCS_HIGH();
 }
 
 void lcdHardwareInit()
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
+	GPIO_InitTypeDef GPIO_InitStructure;
 
-  // APB1 clock / 2 = 133nS per clock
-  LCD_SPI->CR1 = 0; // Clear any mode error
-  LCD_SPI->CR1 = SPI_CR1_SSM | SPI_CR1_SSI | SPI_CR1_CPOL | SPI_CR1_CPHA;
-  LCD_SPI->CR2 = 0;
-  LCD_SPI->CR1 |= SPI_CR1_MSTR;	// Make sure in case SSM/SSI needed to be set first
-  LCD_SPI->CR1 |= SPI_CR1_SPE;
+	GPIO_InitStructure.GPIO_Pin = LCD_NCS_GPIO_PIN;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Low_Speed;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_Init(LCD_NCS_GPIO, &GPIO_InitStructure);
+
+	GPIO_InitStructure.GPIO_Pin = LCD_RST_GPIO_PIN;
+	GPIO_Init(LCD_RST_GPIO, &GPIO_InitStructure);
+
+	GPIO_InitStructure.GPIO_Pin = LCD_A0_GPIO_PIN;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Low_Speed;
+	GPIO_Init(LCD_SPI_GPIO, &GPIO_InitStructure);
+
+	GPIO_InitStructure.GPIO_Pin = LCD_MOSI_GPIO_PIN | LCD_CLK_GPIO_PIN;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Medium_Speed;     // 10 MHz	
+	GPIO_Init(LCD_SPI_GPIO, &GPIO_InitStructure);
   
-  LCD_NCS_HIGH();
+	GPIO_PinAFConfig(LCD_SPI_GPIO, LCD_MOSI_GPIO_PinSource, LCD_GPIO_AF);
+	GPIO_PinAFConfig(LCD_SPI_GPIO, LCD_CLK_GPIO_PinSource, LCD_GPIO_AF);
+	
+	// APB1 clock / 2 = 133nS per clock
+	SPI_I2S_DeInit(LCD_SPI);
+	LCD_SPI->CR1 = 0;   // Clear any mode error
+	LCD_SPI->CR1 = SPI_CR1_SSM | SPI_CR1_SSI | SPI_CR1_CPOL | SPI_CR1_CPHA;
+	//LCD_SPI->CR1 |= SPI_CR1_BR_1 | SPI_CR1_BR_0;
+	LCD_SPI->CR1 |= SPI_CR1_MSTR;  	// Make sure in case SSM/SSI needed to be set first
+	LCD_SPI->CR1 |= SPI_CR1_SPE;
   
-  GPIO_InitStructure.GPIO_Pin = LCD_NCS_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(LCD_NCS_GPIO, &GPIO_InitStructure);
-
-  GPIO_InitStructure.GPIO_Pin = LCD_RST_GPIO_PIN;
-  GPIO_Init(LCD_RST_GPIO, &GPIO_InitStructure);
-
-  GPIO_InitStructure.GPIO_Pin = LCD_A0_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(LCD_SPI_GPIO, &GPIO_InitStructure);
-
-  GPIO_InitStructure.GPIO_Pin = LCD_CLK_GPIO_PIN | LCD_MOSI_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_Init(LCD_SPI_GPIO, &GPIO_InitStructure);
+	LCD_NCS_HIGH();
   
-  GPIO_PinAFConfig(LCD_SPI_GPIO, LCD_MOSI_GPIO_PinSource, LCD_GPIO_AF);
-  GPIO_PinAFConfig(LCD_SPI_GPIO, LCD_CLK_GPIO_PinSource, LCD_GPIO_AF);
 
-  LCD_DMA_Stream->CR &= ~DMA_SxCR_EN; // Disable DMA
-  LCD_DMA->HIFCR = LCD_DMA_FLAGS; // Write ones to clear bits
-  LCD_DMA_Stream->CR =  DMA_SxCR_PL_0 | DMA_SxCR_MINC | DMA_SxCR_DIR_0;
-  LCD_DMA_Stream->PAR = (uint32_t)&LCD_SPI->DR;
-#if LCD_W == 128
-  LCD_DMA_Stream->NDTR = LCD_W;
+	LCD_DMA_Stream->CR &= ~DMA_SxCR_EN;  // Disable DMA
+	LCD_DMA->HIFCR = LCD_DMA_FLAGS;  // Write ones to clear bits
+	LCD_DMA_Stream->CR =  DMA_SxCR_PL_0 | DMA_SxCR_MINC | DMA_SxCR_DIR_0;
+	LCD_DMA_Stream->PAR = (uint32_t)&(LCD_SPI->DR);
+#if LCD_W == 128 
+	LCD_DMA_Stream->NDTR = LCD_W;
 #else
-  LCD_DMA_Stream->M0AR = (uint32_t)displayBuf;
-  LCD_DMA_Stream->NDTR = LCD_W*LCD_H/8*4;
+	LCD_DMA_Stream->M0AR = (uint32_t)displayBuf;
+	LCD_DMA_Stream->NDTR = LCD_W*LCD_H / 8 * 4;
 #endif
-  LCD_DMA_Stream->FCR = 0x05; // DMA_SxFCR_DMDIS | DMA_SxFCR_FTH_0;
+	LCD_DMA_Stream->FCR = 0x05;  // DMA_SxFCR_DMDIS | DMA_SxFCR_FTH_0;
 
-  NVIC_EnableIRQ(LCD_DMA_Stream_IRQn);
+	NVIC_EnableIRQ(LCD_DMA_Stream_IRQn);
 }
 
-#if LCD_W == 128
+#if defined(PCBSTM32F412ZG)
+
+
+void lcdWriteAddress(uint8_t x, uint8_t y)
+{
+	lcdWriteCommand(x & 0x0F);   // Set Column Address LSB CA[3:0]
+	lcdWriteCommand((x >> 4) | 0x10);   // Set Column Address MSB CA[7:4]
+    
+	lcdWriteCommand((y & 0x03F) | 0x40);   // Set Row Address
+}
+
+void lcdStart()
+{
+	lcdWriteCommand(0xAE);  //--turn off oled panel
+	lcdWriteCommand(0x02);  //---set low column address
+	lcdWriteCommand(0x10);  //---set high column address
+	lcdWriteCommand(0x40);  //--set start line address  Set Mapping RAM Display Start Line (0x00~0x3F)
+	lcdWriteCommand(0x81);  //--set contrast control register
+	lcdWriteCommand(0x80);  //--set contrast data
+#if !defined(LCD_INVERT)
+	lcdWriteCommand(0xA0);   //--Set SEG/Column Mapping - normal
+	lcdWriteCommand(0xC0);   //Set COM/Row Scan Direction   - normal
+#else
+	lcdWriteCommand(0xA1);   //--Set SEG/Column Mapping - invert
+	lcdWriteCommand(0xC8);   //Set COM/Row Scan Direction   - invert
+#endif
+	lcdWriteCommand(0xA6);  //--set normal display
+	lcdWriteCommand(0xA8);  //--set multiplex ratio(1 to 64)
+	lcdWriteCommand(0x3F);  //--1/64 duty
+	lcdWriteCommand(0xD3);  //-set display offset    Shift Mapping RAM Counter (0x00~0x3F)
+	lcdWriteCommand(0x00);  //-not offset
+	lcdWriteCommand(0xd5);  //--set display clock divide ratio/oscillator frequency
+	lcdWriteCommand(0x80);  //--set divide ratio, Set Clock as 100 Frames/Sec
+	lcdWriteCommand(0xD9);  //--set pre-charge period
+	lcdWriteCommand(0xF1);  //Set Pre-Charge as 15 Clocks & Discharge as 1 Clock
+	lcdWriteCommand(0xDA);  //--set com pins hardware configuration
+	lcdWriteCommand(0x12);
+	lcdWriteCommand(0xDB);  //--set vcomh
+	lcdWriteCommand(0x40);  //Set VCOM Deselect Level
+	lcdWriteCommand(0x20);  //-Set Page Addressing Mode (0x00/0x01/0x02)
+	lcdWriteCommand(0x02);  //
+	lcdWriteCommand(0xA4);  // Disable Entire Display On (0xa4/0xa5)
+	lcdWriteCommand(0xA6);  // Disable Inverse Display On (0xa6/a7) 
+	lcdWriteCommand(0xB0);   //-Set Page Address
+	lcdWriteCommand(0xAF);    //--turn on oled panel
+	lcdWriteCommand(0xAF);   //--turn on oled panel
+
+//	lcdWriteAddress(0, 0);
+//	for ( int i = 0; i < 10000; i++)
+//		lcdWriteData(i&0xFF);
+//	
+//	lcdWriteAddress(0, 0);
+//	for (long i = 0; i < 128*64; i++)
+//		lcdWriteData(0);
+	
+	  for(uint8_t y = 0 ; y < 8 ; y++) {
+		lcdWriteCommand(0xB0 | y);  // Page addr y
+		lcdWriteCommand(0x10);  // Column addr 0
+		lcdWriteCommand(0x02);
+    
+		for (long i = 0; i < 128; i++)
+		  	lcdWriteData(y+1);
+	}
+}	
+
+#elif LCD_W == 128
+
 void lcdStart()
 {
   lcdWriteCommand(0xe2); // (14) Soft reset
@@ -176,12 +262,22 @@ void lcdRefresh(bool wait)
     lcdInitFinish();
   }
 
-#if LCD_W == 128
+#if 1==0 //defined(PCBSTM32F412ZG)
+	uint8_t * p = displayBuf;
+	for (uint8_t y = 0; y < 8; y++, p += LCD_W) {
+		lcdWriteCommand(0xB0 | y);  // Page addr y
+		lcdWriteCommand(0x10);  // Column addr 0
+		lcdWriteCommand(0x02);
+    
+		for (int i = 0; i < 128; i++)
+			lcdWriteData(p[i]);
+	}	
+#elif LCD_W == 128
   uint8_t * p = displayBuf;
   for (uint8_t y=0; y < 8; y++, p+=LCD_W) {
-    lcdWriteCommand(0x10); // Column addr 0
     lcdWriteCommand(0xB0 | y); // Page addr y
-    lcdWriteCommand(0x04);
+    lcdWriteCommand(0x10); // Column addr 0
+    lcdWriteCommand(0x02);
     
     LCD_NCS_LOW();
     LCD_A0_HIGH();
@@ -253,19 +349,31 @@ void lcdOff()
   LCD Sleep mode is also good for draining capacitors and enables us
   to re-init LCD without any delay
   */
-  lcdWriteCommand(0xAE); // LCD sleep
+//  lcdWriteCommand(0xAE); // LCD sleep
   delay_ms(3); // Wait for caps to drain
 }
 
 void lcdReset()
 {
+#if defined(PCBSTM32F412ZG)
+	LCD_NCS_LOW();
+	LCD_RST_HIGH();
+	delay_ms(10);
+	LCD_RST_LOW();
+	delay_ms(10);
+	LCD_RST_HIGH();
+	LCD_NCS_HIGH();
+	
+#else
   LCD_RST_LOW();
+	
 #if LCD_W == 128
   delay_ms(150);
 #else
   delay_ms(1); // Only 3 us needed according to data-sheet, we use 1 ms
 #endif
   LCD_RST_HIGH();
+#endif
 }
 
 /*
@@ -318,7 +426,9 @@ void lcdInitFinish()
   }
   
   lcdStart();
-  lcdWriteCommand(0xAF); // dc2=1, IC into exit SLEEP MODE, dc3=1 gray=ON, dc4=1 Green Enhanc mode disabled
+#if !defined(PCBSTM32F412ZG)
+//  lcdWriteCommand(0xAF); // dc2=1, IC into exit SLEEP MODE, dc3=1 gray=ON, dc4=1 Green Enhanc mode disabled
+#endif	
   delay_ms(20); // needed for internal DC-DC converter startup
 }
 
@@ -332,6 +442,6 @@ void lcdSetRefVolt(uint8_t val)
   WAIT_FOR_DMA_END();
 #endif
   
-  lcdWriteCommand(0x81); // Set Vop
-  lcdWriteCommand(val+LCD_CONTRAST_OFFSET); // 0-255
+//  lcdWriteCommand(0x81); // Set Vop
+//  lcdWriteCommand(val+LCD_CONTRAST_OFFSET); // 0-255
 }

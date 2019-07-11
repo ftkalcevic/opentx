@@ -20,6 +20,12 @@
 
 #include "opentx.h"
 
+// From the latest st code
+#define ADC_SQR1(_NbrOfConversion_) (((_NbrOfConversion_) - (uint8_t)1U) << 20U)
+#define ADC_SQR3_RK(_CHANNELNB_, _RANKNB_) (((uint32_t)((uint16_t)(_CHANNELNB_))) << (5U * ((_RANKNB_) - 1U)))
+#define ADC_SQR2_RK(_CHANNELNB_, _RANKNB_) (((uint32_t)((uint16_t)(_CHANNELNB_))) << (5U * ((_RANKNB_) - 7U)))
+#define ADC_SQR1_RK(_CHANNELNB_, _RANKNB_) (((uint32_t)((uint16_t)(_CHANNELNB_))) << (5U * ((_RANKNB_) - 13U)))
+
 #if defined(SIMU)
   // not needed
 #elif defined(PCBX10)
@@ -42,6 +48,8 @@
   const int8_t ana_direction[NUM_ANALOGS] = {1,-1,-1,1,  -1,1,  1};
 #elif defined(REV4a)
   const int8_t ana_direction[NUM_ANALOGS] = {1,-1,1,-1,  1,-1,0,  1,1,  1};
+#elif defined(PCBSTM32F412ZG)
+  const int8_t ana_direction[NUM_ANALOGS] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1,1};
 #else
   const int8_t ana_direction[NUM_ANALOGS] = {1,-1,1,-1,  1,1,0,   1,1,  1};
 #endif
@@ -53,6 +61,10 @@
   #define FIRST_ANALOG_ADC             0
   #define NUM_ANALOGS_ADC              10
   #define NUM_ANALOGS_ADC_EXT          (NUM_ANALOGS - 10)
+#elif defined(PCBSTM32F412ZG)
+  #define FIRST_ANALOG_ADC             0
+  #define NUM_ANALOGS_ADC              16
+  #define NUM_ANALOGS_ADC_EXT          (NUM_ANALOGS - 16)
 #else
   #define FIRST_ANALOG_ADC             0
   #define NUM_ANALOGS_ADC              NUM_ANALOGS
@@ -67,7 +79,7 @@ void adcInit()
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-
+	
 #if defined(ADC_GPIOA_PINS)
   GPIO_InitStructure.GPIO_Pin = ADC_GPIOA_PINS;
   GPIO_Init(GPIOA, &GPIO_InitStructure);
@@ -113,6 +125,25 @@ void adcInit()
     ADC_MAIN->SQR2 = (ADC_CHANNEL_BATT<<0);
     ADC_MAIN->SQR3 = (ADC_CHANNEL_STICK_LH<<0) + (ADC_CHANNEL_STICK_LV<<5) + (ADC_CHANNEL_STICK_RV<<10) + (ADC_CHANNEL_STICK_RH<<15) + (ADC_CHANNEL_POT1<<20) + (ADC_CHANNEL_POT2<<25); // conversions 1 to 6
   }
+#elif defined(PCBSTM32F412ZG)
+	ADC_MAIN->SQR3 = ADC_SQR3_RK(ADC_CHANNEL_A1, 1) |
+					 ADC_SQR3_RK(ADC_CHANNEL_A2, 2) |
+					 ADC_SQR3_RK(ADC_CHANNEL_A3, 3) |	
+					 ADC_SQR3_RK(ADC_CHANNEL_A4, 4) |	
+					 ADC_SQR3_RK(ADC_CHANNEL_A5, 5) |	
+					 ADC_SQR3_RK(ADC_CHANNEL_A6, 6);
+	ADC_MAIN->SQR2 = ADC_SQR2_RK(ADC_CHANNEL_A7, 7) |	
+					 ADC_SQR2_RK(ADC_CHANNEL_A8, 8) |	
+					 ADC_SQR2_RK(ADC_CHANNEL_A9, 9) |	
+					 ADC_SQR2_RK(ADC_CHANNEL_A10, 10) |	
+					 ADC_SQR2_RK(ADC_CHANNEL_A11, 11) |	
+					 ADC_SQR2_RK(ADC_CHANNEL_A12, 12);
+	ADC_MAIN->SQR1 = ADC_SQR1_RK(ADC_CHANNEL_A13, 13) |	
+					 ADC_SQR1_RK(ADC_CHANNEL_A14, 14) |	
+					 ADC_SQR1_RK(ADC_CHANNEL_A15, 15) |	
+					 ADC_SQR1_RK(ADC_CHANNEL_BAT, 16) |	
+					 ADC_SQR1(NUM_ANALOGS_ADC);
+	
 #elif defined(PCBX7)
   // TODO why do we invert POT1 and POT2 here?
   ADC_MAIN->SQR2 = (ADC_CHANNEL_BATT<<0); // conversions 7 and more

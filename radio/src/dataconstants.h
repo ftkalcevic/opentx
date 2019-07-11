@@ -46,6 +46,19 @@
   #define MAX_TRAINER_CHANNELS         16
   #define MAX_TELEMETRY_SENSORS        32
   #define MAX_CUSTOM_SCREENS           5
+#elif defined(PCBSTM32F412ZG)
+	#define MAX_MODELS                   60
+	#define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
+	#define MAX_FLIGHT_MODES             9
+	#define MAX_MIXERS                   64
+	#define MAX_EXPOS                    64
+	#define MAX_LOGICAL_SWITCHES         64
+	#define MAX_SPECIAL_FUNCTIONS        64 // number of functions assigned to switches
+	#define MAX_SCRIPTS                  9
+	#define MAX_INPUTS                   32
+	#define MAX_TRAINER_CHANNELS         16
+	#define MAX_TELEMETRY_SENSORS        32
+	#define MAX_CUSTOM_SCREENS           5
 #elif defined(PCBTARANIS)
   #define MAX_MODELS                   60
   #define MAX_OUTPUT_CHANNELS          32 // number of real output channels CH1-CH32
@@ -260,8 +273,12 @@ enum BeeperMode {
 #endif
 
 #if defined(PCBTARANIS) || defined(PCBHORUS)
-#define IS_INTERNAL_MODULE_ENABLED() (g_model.moduleData[INTERNAL_MODULE].type != MODULE_TYPE_NONE)
-#elif defined(PCBSKY9X)
+  #if defined(PCBSTM32F412ZG)
+    #define IS_INTERNAL_MODULE_ENABLED() (false)
+  #else
+    #define IS_INTERNAL_MODULE_ENABLED() (g_model.moduleData[INTERNAL_MODULE].type != MODULE_TYPE_NONE)
+  #endif
+#elif defined(PCBSKY9X) || defined(PCBSTM32F412ZG)
   #define IS_INTERNAL_MODULE_ENABLED() (false)
 #endif
 #define IS_EXTERNAL_MODULE_ENABLED() (g_model.moduleData[EXTERNAL_MODULE].type != MODULE_TYPE_NONE)
@@ -549,7 +566,7 @@ enum SwitchSources {
   SWSRC_SH1,
   SWSRC_SH2,
 #endif
-#if defined(PCBX9E)
+#if defined(PCBX9E) || defined(PCBSTM32F412ZG)
   SWSRC_SI0,
   SWSRC_SI1,
   SWSRC_SI2,
@@ -581,12 +598,35 @@ enum SwitchSources {
   SWSRC_SR1,
   SWSRC_SR2,
 #endif
+#if defined(PCBSTM32F412ZG)
+  SWSRC_SS0,
+  SWSRC_SS1,
+  SWSRC_SS2,
+  SWSRC_ST0,
+  SWSRC_ST1,
+  SWSRC_ST2,
+  SWSRC_SU0,
+  SWSRC_SU1,
+  SWSRC_SU2,
+  SWSRC_SV0,
+  SWSRC_SV1,
+  SWSRC_SV2,
+  SWSRC_S_W0,	// Clash with logical switches SWSRC_SW1, SWSRC_SW2, etc
+  SWSRC_S_W1,
+  SWSRC_S_W2,
+  SWSRC_SX0,
+  SWSRC_SX1,
+  SWSRC_SX2,
+#endif
 #if defined(PCBX9E)
   SWSRC_TRAINER = SWSRC_SH2,
   SWSRC_LAST_SWITCH = SWSRC_SR2,
 #elif defined(PCBXLITE)
   SWSRC_TRAINER = SWSRC_SD2,
   SWSRC_LAST_SWITCH = SWSRC_SD2,
+#elif defined(PCBSTM32F412ZG)
+  SWSRC_TRAINER = SWSRC_SX2,
+  SWSRC_LAST_SWITCH = SWSRC_SX2,
 #else
   SWSRC_TRAINER = SWSRC_SH2,
   SWSRC_LAST_SWITCH = SWSRC_SH2,
@@ -728,6 +768,19 @@ enum MixSources {
   MIXSRC_SLIDER3,                       LUA_EXPORT("lcs", "Left center slider (X9E only)")
   MIXSRC_SLIDER4,                       LUA_EXPORT("rcs", "Right center slider (X9E only)")
   MIXSRC_LAST_POT = MIXSRC_SLIDER4,
+#elif defined(PCBSTM32F412ZG)
+  MIXSRC_POT1 = MIXSRC_FIRST_POT,       LUA_EXPORT("s1", "Potentiometer 1")
+  MIXSRC_POT2,                          LUA_EXPORT("s2", "Potentiometer 2")
+  MIXSRC_POT3,                          LUA_EXPORT("s3", "Potentiometer 3")
+  MIXSRC_POT4,                          LUA_EXPORT("s4", "Potentiometer 4")
+  MIXSRC_POT5,                          LUA_EXPORT("s5", "Potentiometer 5")
+  MIXSRC_POT6,                          LUA_EXPORT("s6", "Potentiometer 6")
+  MIXSRC_POT7,                          LUA_EXPORT("s7", "Potentiometer 7")
+  MIXSRC_POT8,                          LUA_EXPORT("s8", "Potentiometer 8")
+  MIXSRC_POT9,                          LUA_EXPORT("s9", "Potentiometer 9")
+  MIXSRC_POT10,                         LUA_EXPORT("s10", "Potentiometer 10")
+  MIXSRC_POT11,                         LUA_EXPORT("s11", "Potentiometer 11")
+  MIXSRC_LAST_POT = MIXSRC_POT11,
 #elif defined(PCBX7) || defined(PCBXLITE)
   MIXSRC_POT1 = MIXSRC_FIRST_POT,       LUA_EXPORT("s1", "Potentiometer 1")
   MIXSRC_POT2,                          LUA_EXPORT("s2", "Potentiometer 2")
@@ -808,7 +861,7 @@ enum MixSources {
   MIXSRC_SG,                        LUA_EXPORT("sg", "Switch G")
 #endif
   MIXSRC_SH,                        LUA_EXPORT("sh", "Switch H")
-#if defined(PCBX9E)
+#if defined(PCBX9E) 
   MIXSRC_SI,                        LUA_EXPORT("si", "Switch I")
   MIXSRC_SJ,                        LUA_EXPORT("sj", "Switch J")
   MIXSRC_SK,                        LUA_EXPORT("sk", "Switch K")
@@ -820,6 +873,24 @@ enum MixSources {
   MIXSRC_SQ,                        LUA_EXPORT("sq", "Switch Q")
   MIXSRC_SR,                        LUA_EXPORT("sr", "Switch R")
   MIXSRC_LAST_SWITCH = MIXSRC_SR,
+#elif defined(PCBSTM32F412ZG) 
+  MIXSRC_SI,                        LUA_EXPORT("si", "Switch I")
+  MIXSRC_SJ,                        LUA_EXPORT("sj", "Switch J")
+  MIXSRC_SK,                        LUA_EXPORT("sk", "Switch K")
+  MIXSRC_SL,                        LUA_EXPORT("sl", "Switch L")
+  MIXSRC_SM,                        LUA_EXPORT("sm", "Switch M")
+  MIXSRC_SN,                        LUA_EXPORT("sn", "Switch N")
+  MIXSRC_SO,                        LUA_EXPORT("so", "Switch O")
+  MIXSRC_SP,                        LUA_EXPORT("sp", "Switch P")
+  MIXSRC_SQ,                        LUA_EXPORT("sq", "Switch Q")
+  MIXSRC_SR,                        LUA_EXPORT("sr", "Switch R")
+  MIXSRC_SS,                        LUA_EXPORT("ss", "Switch S")
+  MIXSRC_ST,                        LUA_EXPORT("st", "Switch T")
+  MIXSRC_SU,                        LUA_EXPORT("su", "Switch U")
+  MIXSRC_SV,                        LUA_EXPORT("sv", "Switch V")
+  MIXSRC_SW,                        LUA_EXPORT("sw", "Switch W")
+  MIXSRC_SX,                        LUA_EXPORT("sx", "Switch X")
+  MIXSRC_LAST_SWITCH = MIXSRC_SX,
 #else
   MIXSRC_LAST_SWITCH = MIXSRC_SH,
 #endif

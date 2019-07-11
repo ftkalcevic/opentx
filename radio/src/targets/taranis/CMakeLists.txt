@@ -93,6 +93,32 @@ elseif(PCB STREQUAL XLITE)
   set(FONTS_TARGET 9x_fonts_1bit)
   set(LCD_DRIVER lcd_driver_spi.cpp)
   set(GVAR_SCREEN model_gvars.cpp)
+elseif(PCB STREQUAL STM32F412ZG)
+  set(PWR_BUTTON "PRESS" CACHE STRING "Pwr button type (PRESS/SWITCH)")
+  set(STICKS "STANDARD" CACHE STRING "Sticks type (STANDARD/HORUS)")
+  set(CPU_TYPE STM32F4)
+  set(CPU_TYPE_FULL STM32F412ZG)  # for size report
+  set(LINKER_SCRIPT targets/taranis/stm32f412_flash.ld)
+  option(HAPTIC "Haptic support" OFF)
+  set(LUA_EXPORT lua_export_stm32f412zg)
+  set(FLAVOUR x9e)
+  add_definitions(-DSTM32F40_41xxx -DPCBSTM32F412ZG)
+  add_definitions(-DEEPROM_VARIANT=0x8000)
+  add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
+  set(FIRMWARE_TARGET_SRC
+    ${FIRMWARE_TARGET_SRC}
+    startup_stm32f40_41xxx.s
+    )
+  set(SERIAL2_DRIVER ../common/arm/stm32/serial2_driver.cpp)
+  if(STICKS STREQUAL HORUS)
+    add_definitions(-DHORUS_STICKS)
+  endif()
+  set(GUI_DIR 128x64)
+  set(BITMAPS_TARGET 9x_bitmaps)
+  set(FONTS_TARGET 9x_fonts_1bit)
+  set(LCD_DRIVER lcd_driver_spi.cpp)
+  set(GVAR_SCREEN model_gvars.cpp)
+
 endif()
 
 if(PCB STREQUAL XLITE)
@@ -105,6 +131,13 @@ if(PCB STREQUAL XLITE)
   set(TARGET_SRC
     ${TARGET_SRC}
     ../common/arm/stm32/intmodule_serial_driver.cpp
+    )
+elseif (PCB STREQUAL STM32F412ZG)
+  set(TARGET_SRC
+    ${TARGET_SRC}
+    )
+  set(PULSES_SRC
+    ${PULSES_SRC}
     )
 else()
   set(TARGET_SRC
@@ -131,7 +164,11 @@ if(PCB STREQUAL X9E OR PCB STREQUAL X7 OR PCB STREQUAL XLITE)
     )
 endif()
 
-set(HSE_VALUE 12000000)
+if(PCB STREQUAL STM32F412ZG)
+	set(HSE_VALUE 8000000)
+else()
+	set(HSE_VALUE 12000000)
+endif()
 set(SDCARD YES)
 set(EEPROM EEPROM_RLC)
 set(TARGET_DIR taranis)
@@ -158,7 +195,7 @@ set(GUI_SRC ${GUI_SRC}
   ../screenshot.cpp
   )
 
-if(PCB STREQUAL X7 OR PCB STREQUAL XLITE)
+if(PCB STREQUAL X7 OR PCB STREQUAL XLITE OR PCB STREQUAL STM32F412ZG)
   set(LED_DRIVER led_driver.cpp)
 endif()
 
@@ -168,9 +205,20 @@ set(TARGET_SRC
   ${LED_DRIVER}
   backlight_driver.cpp
   extmodule_driver.cpp
-  ../common/arm/stm32/audio_dac_driver.cpp
   ../common/arm/stm32/adc_driver.cpp
   )
+
+if(PCB STREQUAL STM32F412ZG)
+  set(TARGET_SRC
+    ${TARGET_SRC}
+    ../common/arm/stm32/audio_i2s_driver.cpp
+    )
+else()
+  set(TARGET_SRC
+    ${TARGET_SRC}
+    ../common/arm/stm32/audio_dac_driver.cpp
+    )
+endif()
 
 if(PCB STREQUAL XLITE)
   set(TARGET_SRC

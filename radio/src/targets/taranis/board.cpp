@@ -161,7 +161,7 @@ void boardInit()
   RCC_APB2PeriphClockCmd(BACKLIGHT_RCC_APB2Periph | ADC_RCC_APB2Periph |
                          HAPTIC_RCC_APB2Periph | INTMODULE_RCC_APB2Periph |
                          EXTMODULE_RCC_APB2Periph | HEARTBEAT_RCC_APB2Periph |
-                         BT_RCC_APB2Periph, ENABLE);
+                         BT_RCC_APB2Periph | AUDIO_RCC_APB2Periph, ENABLE);
 
 #if !defined(PCBX9E)
   // some X9E boards need that the pwrInit() is moved a little bit later
@@ -248,7 +248,9 @@ void boardInit()
           pwr_on = 1;
           pwrInit();
           backlightInit();
+#ifdef HAPTIC
           haptic.play(15, 3, PLAY_NOW);
+#endif
         }
       }
       lcdRefresh();

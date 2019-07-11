@@ -37,7 +37,7 @@ int8_t p2valdiff;
 
 int8_t  checkIncDec_Ret;
 
-#if defined(PCBXLITE)
+#if defined(PCBXLITE) || defined(PCBSTM32F412ZG)
 // invert the value
 #define DBLKEYS_PRESSED_RGT_LFT(in)    ((in & ((1<<KEY_SHIFT) + (1<<KEY_UP))) == ((1<<KEY_SHIFT) + (1<<KEY_UP)))
 // set to 0
@@ -343,7 +343,7 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, unsigned int i_fla
   }
 #endif
 
-#if defined(PCBXLITE)
+#if defined(PCBXLITE) || defined(PCBSTM32F412ZG)
   if (s_editMode > 0) {
     if (event==EVT_KEY_FIRST(KEY_RIGHT) || event==EVT_KEY_REPT(KEY_RIGHT) || event==EVT_KEY_FIRST(KEY_UP) || event==EVT_KEY_REPT(KEY_UP)) {
 #else
@@ -364,7 +364,7 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, unsigned int i_fla
         AUDIO_KEY_ERROR();
       }
     }
-#if defined(PCBXLITE)
+#if defined(PCBXLITE) || defined(PCBSTM32F412ZG)
     else if (event==EVT_KEY_FIRST(KEY_LEFT) || event==EVT_KEY_REPT(KEY_LEFT) || event==EVT_KEY_FIRST(KEY_DOWN) || event==EVT_KEY_REPT(KEY_DOWN)) {
 #else
     else if (event==EVT_KEY_FIRST(KEY_LEFT) || event==EVT_KEY_REPT(KEY_LEFT) || (s_editMode>0 && (IS_ROTARY_LEFT(event) || event==EVT_KEY_FIRST(KEY_DOWN) || event==EVT_KEY_REPT(KEY_DOWN)))) {
@@ -384,7 +384,7 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, unsigned int i_fla
         AUDIO_KEY_ERROR();
       }
     }
-#if defined(PCBXLITE)
+#if defined(PCBXLITE) || defined(PCBSTM32F412ZG)
   }
 #endif
 
@@ -436,7 +436,7 @@ int checkIncDec(event_t event, int val, int i_min, int i_max, unsigned int i_fla
     checkIncDec_Ret = 0;
   }
 
-#if defined(PCBXLITE)
+#if defined(PCBXLITE) || defined(PCBSTM32F412ZG)
   if (i_flags & INCDEC_SOURCE) {
     if (event == EVT_KEY_LONG(KEY_ENTER) && !IS_SHIFT_PRESSED()) {
       killEvents(event);
@@ -902,7 +902,7 @@ void check(event_t event, uint8_t curr, const MenuHandlerFunc * menuTab, uint8_t
   menuHorizontalPosition = l_posHorz;
 }
 #else
-#if defined(PCBXLITE)
+#if defined(PCBXLITE) || defined(PCBSTM32F412ZG)
 #define MAXCOL_RAW(row)                (horTab ? pgm_read_byte(horTab+min(row, (vertpos_t)horTabMax)) : (const uint8_t)0)
 #define MAXCOL(row)                    (MAXCOL_RAW(row) >= HIDDEN_ROW ? MAXCOL_RAW(row) : (const uint8_t)(MAXCOL_RAW(row) & (~NAVIGATION_LINE_BY_LINE)))
 #else

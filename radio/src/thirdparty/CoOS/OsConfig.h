@@ -74,7 +74,9 @@ Idle task stack size(word).
 /*!< 
 System frequency (Hz).	                 	         
 */    
-#if defined(STM32F4)
+#if CPU_TYPE_FULL == STM32F412ZG
+#define CFG_CPU_FREQ            (96000000)
+#elif defined(STM32F4)
 #define CFG_CPU_FREQ            (168000000)
 #elif defined(STM32)
 #define CFG_CPU_FREQ            (120000000)

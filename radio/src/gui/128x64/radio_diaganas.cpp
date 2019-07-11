@@ -34,38 +34,43 @@ void menuRadioDiagAnalogs(event_t event)
   SIMPLE_MENU(STR_MENU_RADIO_ANALOGS, menuTabGeneral, MENU_RADIO_ANALOGS_TEST, HEADER_LINE+ANAS_ITEMS_COUNT);
 
   STICK_SCROLL_DISABLE();
-
+	uint8_t columns;	if ((NUM_STICKS + NUM_POTS + NUM_SLIDERS) > 9)
+		columns = 3;	else		columns = 2;
   for (uint8_t i=0; i<NUM_STICKS+NUM_POTS+NUM_SLIDERS; i++) {
-#if (NUM_STICKS+NUM_POTS+NUM_SLIDERS) > 9
-    coord_t y = MENU_HEADER_HEIGHT + 1 + (i/3)*FH;
-    const uint8_t x_coord[] = {0, 70, 154};
-    uint8_t x = x_coord[i%3];
-    lcdDrawNumber(x, y, i+1, LEADING0|LEFT, 2);
-    lcdDrawChar(x+2*FW-2, y, ':');
-#else
-    coord_t y = MENU_HEADER_HEIGHT + 1 + (i/2)*FH;
-    uint8_t x = (i & 1) ? LCD_W/2+FW : 0;
-    drawStringWithIndex(x, y, PSTR("A"), i+1);
-    lcdDrawChar(lcdNextPos, y, ':');
-#endif
-    lcdDrawHexNumber(x+3*FW-1, y, anaIn(i));
+	  coord_t y = MENU_HEADER_HEIGHT + 1 + (i / columns)*FH;
+	  uint8_t x;
+	  if ((NUM_STICKS + NUM_POTS + NUM_SLIDERS) > 9)
+	  {
+		  const uint8_t x_coord[] = { 0, 41, 83 };
+		  x = x_coord[i % 3];
+		  lcdDrawNumber(x, y, i + 1, LEADING0 | LEFT, 2);
+		  lcdDrawChar(x + 2*FW - 2, y, ':');
+		  lcdDrawHexNumber(x+3*FW-1, y, anaIn(i));
+	  }
+	  else
+	  {
+		  x = (i & 1) ? LCD_W / 2 + FW : 0;
+		  drawStringWithIndex(x, y, PSTR("A"), i + 1);
+		  lcdDrawChar(lcdNextPos, y, ':');
+		  lcdDrawHexNumber(x+3*FW-1, y, anaIn(i));
 #if defined(CPUARM)
-    lcdDrawNumber(x+10*FW-1, y, (int16_t)calibratedAnalogs[CONVERT_MODE(i)]*25/256, RIGHT);
+		  lcdDrawNumber(x+10*FW-1, y, (int16_t)calibratedAnalogs[CONVERT_MODE(i)]*25/256, RIGHT);
 #else
-    lcdDraw8bitsNumber(x+10*FW-1, y, (int16_t)calibratedAnalogs[CONVERT_MODE(i)]*25/256);
+	      lcdDraw8bitsNumber(x+10*FW-1, y, (int16_t)calibratedAnalogs[CONVERT_MODE(i)]*25/256);
 #endif
+	  }
   }
 
   // RAS
 #if defined(PCBTARANIS)
   if (IS_MODULE_XJT(EXTERNAL_MODULE) && !IS_INTERNAL_MODULE_ON()) {
-    coord_t y = MENU_HEADER_HEIGHT + 1 + (NUM_STICKS+NUM_POTS+NUM_SLIDERS+1)/2 * FH + 1 * FH + 2;
+	coord_t y = MENU_HEADER_HEIGHT + 1 + (NUM_STICKS+NUM_POTS+NUM_SLIDERS+1)/columns * FH + 1 * FH + 2;
     lcdDrawText(1, y, "RAS:");
     lcdDrawNumber(1 + 4*FW, y, telemetryData.swr.value, LEFT);
   }
 #elif defined(CPUARM)
   if (IS_MODULE_XJT(EXTERNAL_MODULE)) {
-    coord_t y = MENU_HEADER_HEIGHT + 1 + ((NUM_STICKS+NUM_POTS+NUM_SLIDERS)/2)*FH;
+    coord_t y = MENU_HEADER_HEIGHT + 1 + ((NUM_STICKS+NUM_POTS+NUM_SLIDERS)/columns)*FH;
     uint8_t x = ((NUM_STICKS+NUM_POTS+NUM_SLIDERS) & 1) ? (LCD_W/2)+FW : 0;
 
     lcdDrawText(x, y, "RAS:");
@@ -80,8 +85,8 @@ void menuRadioDiagAnalogs(event_t event)
 #endif
 
 #if defined(PCBTARANIS)
-  lcdDrawTextAlignedLeft(MENU_HEADER_HEIGHT + 1 + (NUM_STICKS+NUM_POTS+NUM_SLIDERS+1)/2 * FH + 2, STR_BATT_CALIB);
-  putsVolts(LEN_CALIB_FIELDS*FW+FW, MENU_HEADER_HEIGHT + 1 + (NUM_STICKS+NUM_POTS+NUM_SLIDERS+1)/2 * FH + 2, getBatteryVoltage(), (menuVerticalPosition==HEADER_LINE ? INVERS | (s_editMode > 0 ? BLINK : 0) : 0) | PREC2 | LEFT);
+  lcdDrawTextAlignedLeft(MENU_HEADER_HEIGHT + 1 + (NUM_STICKS+NUM_POTS+NUM_SLIDERS+1)/columns * FH + 2, STR_BATT_CALIB);
+  putsVolts(LEN_CALIB_FIELDS*FW+FW, MENU_HEADER_HEIGHT + 1 + (NUM_STICKS+NUM_POTS+NUM_SLIDERS+1)/columns * FH + 2, getBatteryVoltage(), (menuVerticalPosition==HEADER_LINE ? INVERS | (s_editMode > 0 ? BLINK : 0) : 0) | PREC2 | LEFT);
 #elif defined(PCBSKY9X)
   lcdDrawTextAlignedLeft(MENU_HEADER_HEIGHT+1+4*FH, STR_BATT_CALIB);
   static int32_t adcBatt;
