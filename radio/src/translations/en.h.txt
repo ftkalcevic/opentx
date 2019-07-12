@@ -431,7 +431,7 @@
 #if defined(PCBHORUS)
   #define LEN_VKEYS                    "\005"
   #define TR_VKEYS                     "Menu\0""Exit\0""Enter""Up\0  ""Down\0""Right""Left\0"
-#elif defined(PCBXLITE) || defined(PCBSTM32F4DISCO)
+#elif defined(PCBXLITE) || defined(PCBSTM32F412ZG)
   #define LEN_VKEYS                    "\005"
   #define TR_VKEYS                     "Shift""Exit\0""Enter""Down\0""Up\0  ""Right""Left\0"
 #elif defined(PCBTARANIS)
@@ -475,7 +475,7 @@
 #elif defined(PCBX9E)
   #define TR_POTS_VSRCRAW              "\310F1\0""\310F2\0""\310F3\0""\310F4\0""\311S1\0""\311S2\0""\311LS\0""\311RS\0"
   #define TR_SW_VSRCRAW                "\312SA\0""\312SB\0""\312SC\0""\312SD\0""\312SE\0""\312SF\0""\312SG\0""\312SH\0""\312SI\0""\312SJ\0""\312SK\0""\312SL\0""\312SM\0""\312SN\0""\312SO\0""\312SP\0""\312SQ\0""\312SR\0"
-#elif defined(PCBSTM32F4DISCO)
+#elif defined(PCBSTM32F412ZG)
   #define TR_POTS_VSRCRAW              "\310P1\0""\310P2\0""\310P3\0""\310P4\0""\310P5\0""\310P6\0""\310P7\0""\310P8\0""\310P9\0""\310PA\0""\310PB\0"
   #define TR_SW_VSRCRAW                "\312SA\0""\312SB\0""\312SC\0""\312SD\0""\312SE\0""\312SF\0""\312SG\0""\312SH\0""\312SI\0""\312SJ\0""\312SK\0""\312SL\0""\312SM\0""\312SN\0""\312SO\0""\312SP\0""\312SQ\0""\312SR\0""\312SS\0""\312ST\0""\312SU\0""\312SV\0""\312SW\0""\312SX\0"
 #elif defined(PCBXLITE)
@@ -1117,7 +1117,7 @@
 #if defined(COLORLCD)
 #define TR_EEBACKUP                    "EEPROM backup"
 #define TR_FACTORYRESET                "Factory reset"
-#elif defined(PCBXLITE) || defined(PCBSTM32F4DISCO)
+#elif defined(PCBXLITE) || defined(PCBSTM32F412ZG)
 #define TR_EEBACKUP                    "\001[ENT. Long]: Backup"
 #define TR_FACTORYRESET                "\001[\300ENT. Long]: Fact. reset"
 #else

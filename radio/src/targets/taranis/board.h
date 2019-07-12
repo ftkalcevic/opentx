@@ -338,22 +338,22 @@ enum EnumSwitchesPositions
   SW_SD0,
   SW_SD1,
   SW_SD2,
-#if !defined(PCBX7) && !defined(PCBXLITE) && !defined(PCBSTM32F412ZG)
+#if !defined(PCBX7) && !defined(PCBXLITE)
   SW_SE0,
   SW_SE1,
   SW_SE2,
 #endif
-#if !defined(PCBXLITE) && !defined(PCBSTM32F412ZG)
+#if !defined(PCBXLITE) 
   SW_SF0,
   SW_SF1,
   SW_SF2,
 #endif
-#if !defined(PCBX7) && !defined(PCBXLITE) && !defined(PCBSTM32F412ZG)
+#if !defined(PCBX7) && !defined(PCBXLITE) 
   SW_SG0,
   SW_SG1,
   SW_SG2,
 #endif
-#if !defined(PCBXLITE) && !defined(PCBSTM32F412ZG)
+#if !defined(PCBXLITE) 
   SW_SH0,
   SW_SH1,
   SW_SH2,

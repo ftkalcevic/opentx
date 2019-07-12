@@ -36,7 +36,7 @@
 #elif defined(PCBXLITE)
   #include "lua/lua_exports_xlite.inc"
 #elif defined(PCBSTM32F412ZG)
-  #include "lua/lua_exports_stm32f4disco.inc"
+  #include "lua/lua_exports_stm32f412zg.inc"
 #elif defined(PCBTARANIS)
   #include "lua/lua_exports_x9d.inc"
 #endif
