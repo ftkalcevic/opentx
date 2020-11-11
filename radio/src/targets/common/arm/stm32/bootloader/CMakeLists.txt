@@ -40,7 +40,7 @@ elseif(PCB STREQUAL DIYOPENTX)
   set(BOOTLOADER_SRC
     ${BOOTLOADER_SRC}
     ../f4/system_stm32f4xx.c
-    ../../../../../targets/${TARGET_DIR}/startup_stm32f40_41xxx.s
+    ../../../../../targets/${TARGET_DIR}/startup_stm32f429xx.c
     ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_rcc.c
     ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_gpio.c
     ../../../../../${STM32LIB_DIR}/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_spi.c

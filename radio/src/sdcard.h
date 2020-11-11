@@ -153,6 +153,8 @@ const char * getBasename(const char * path);
   #define OTX_FOURCC 0x3378746F // otx for Taranis X9D
 #elif defined(PCBSKY9X)
   #define OTX_FOURCC 0x3278746F // otx for sky9x
+#elif defined(PCBDIYOPENTX)
+  #define OTX_FOURCC 0x4478746F // otx for sky9x
 #endif
 
 bool isFileAvailable(const char * filename, bool exclDir = false);

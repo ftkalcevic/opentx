@@ -651,6 +651,24 @@ enum MixSources {
   MIXSRC_SLIDER1 = MIXSRC_FIRST_SLIDER, LUA_EXPORT("ls", "Left slider")
   MIXSRC_SLIDER2,                       LUA_EXPORT("rs", "Right slider")
   MIXSRC_LAST_POT = MIXSRC_SLIDER2,
+#elif defined(PCBX9E)
+  MIXSRC_POT1 = MIXSRC_FIRST_POT,       LUA_EXPORT("s1", "Potentiometer 1")
+  MIXSRC_POT2,                          LUA_EXPORT("s2", "Potentiometer 2")
+  MIXSRC_POT3,                          LUA_EXPORT("s3", "Potentiometer 3")
+  MIXSRC_POT4,                          LUA_EXPORT("s4", "Potentiometer 4")
+  MIXSRC_POT5,                          LUA_EXPORT("s5", "Potentiometer 5")
+  MIXSRC_POT6,                          LUA_EXPORT("s6", "Potentiometer 6")
+  MIXSRC_POT7,                          LUA_EXPORT("s7", "Potentiometer 7")
+  MIXSRC_POT8,                          LUA_EXPORT("s8", "Potentiometer 8")
+  MIXSRC_POT9,                          LUA_EXPORT("s9", "Potentiometer 9")
+  MIXSRC_POT10,                          LUA_EXPORT("s10", "Potentiometer 10")
+  MIXSRC_POT11,                          LUA_EXPORT("s11", "Potentiometer 11")
+  MIXSRC_POT12,                          LUA_EXPORT("s12", "Potentiometer 12")
+  MIXSRC_POT13,                          LUA_EXPORT("s13", "Potentiometer 13")
+  MIXSRC_POT14,                          LUA_EXPORT("s14", "Potentiometer 14")
+  MIXSRC_POT15,                          LUA_EXPORT("s15", "Potentiometer 15")
+  MIXSRC_POT16,                          LUA_EXPORT("s16", "Potentiometer 16")
+  MIXSRC_LAST_POT = MIXSRC_POT16,
 #else
   MIXSRC_P1 = MIXSRC_FIRST_POT,
   MIXSRC_P2,
@@ -739,6 +757,11 @@ enum MixSources {
   MIXSRC_SP,                        LUA_EXPORT("sp", "Switch P")
   MIXSRC_SQ,                        LUA_EXPORT("sq", "Switch Q")
   MIXSRC_SR,                        LUA_EXPORT("sr", "Switch R")
+#endif
+#if defined(HARDWARE_SWITCH_S)
+  MIXSRC_SS,                        LUA_EXPORT("ss", "Switch S")
+  MIXSRC_ST,                        LUA_EXPORT("st", "Switch T")
+  MIXSRC_SU,                        LUA_EXPORT("su", "Switch U")
 #endif
 #if defined(PCBSKY9X)
   MIXSRC_3POS = MIXSRC_FIRST_SWITCH,

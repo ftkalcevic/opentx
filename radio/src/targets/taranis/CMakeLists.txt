@@ -274,14 +274,14 @@ elseif(PCB STREQUAL XLITES)
 elseif(PCB STREQUAL DIYOPENTX)
   set(PWR_BUTTON "PRESS" CACHE STRING "Pwr button type (PRESS/SWITCH)")
   set(STICKS "STANDARD" CACHE STRING "Sticks type (STANDARD/HORUS)")
-  set(CPU_TYPE STM32F429)
+  set(CPU_TYPE STM32F4)
   set(CPU_TYPE_FULL STM32F429ZG)  # for size report
   set(ARCH ARM)
-  set(LINKER_SCRIPT targets/taranis/STM32F429ZG_flash.lds)
-  option(HAPTIC "Haptic support" OFF)
-  set(LUA_EXPORT lua_export_stm32f429zgt6)
+  set(LINKER_SCRIPT targets/taranis/STM32F429ZG_flash.ld)
+  option(HAPTIC "Haptic support" ON)
+  set(LUA_EXPORT lua_export_diyopentx)
   set(FLAVOUR x9e)
-  add_definitions(-DSTM32F40_41xxx -DPCBDIYOPENTX)
+  add_definitions(-DSTM32F429_439xx -DPCBDIYOPENTX)
   add_definitions(-DEEPROM_VARIANT=0x8000)
   add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
   set(FIRMWARE_TARGET_SRC
@@ -327,6 +327,7 @@ if(INTERNAL_MODULE_SERIAL)
     ${TARGET_SRC}
     ../common/arm/stm32/intmodule_serial_driver.cpp
     )
+elseif(PCB STREQUAL DIYOPENTX)
 elseif(NOT (PCB STREQUAL X7 AND PCBREV STREQUAL T12))
   set(TARGET_SRC
     ${TARGET_SRC}
@@ -369,8 +370,9 @@ endif()
 
 add_definitions(-DPCBTARANIS)
 add_definitions(-DAUDIO -DVOICE -DRTCLOCK)
-add_definitions(-DSBUS_TRAINER)
-
+if(NOT (PCB STREQUAL DIYOPENTX))
+    add_definitions(-DSBUS_TRAINER)
+endif()
 set(SRC
   ${SRC}
   io/frsky_firmware_update.cpp
@@ -394,22 +396,29 @@ if(STATUS_LEDS)
   set(LED_DRIVER led_driver.cpp)
 endif()
 
-set(SRC
-  ${SRC}
-  sbus.cpp
-  )
+if(NOT (PCB STREQUAL DIYOPENTX))
+    set(SRC
+      ${SRC}
+      sbus.cpp
+      )
+endif()
 
 set(TARGET_SRC
   ${TARGET_SRC}
   ${LED_DRIVER}
   backlight_driver.cpp
   extmodule_driver.cpp
-  trainer_driver.cpp
   ../common/arm/stm32/timers_driver.cpp
   ../common/arm/stm32/audio_dac_driver.cpp
   ../common/arm/stm32/adc_driver.cpp
   ../common/arm/stm32/heartbeat_driver.cpp
   )
+
+if(NOT (PCB STREQUAL DIYOPENTX))
+    set(TARGET_SRC
+      trainer_driver.cpp
+      )
+endif()
 
 if(PCB STREQUAL XLITE OR PCB STREQUAL XLITES)
   set(TARGET_SRC

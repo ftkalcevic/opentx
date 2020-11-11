@@ -207,6 +207,25 @@ uint32_t switchState(uint8_t index)
     ADD_2POS_CASE(H);
     ADD_2POS_CASE(I);
     ADD_2POS_CASE(J);
+#elif defined(PCBDIYOPENTX)
+    ADD_3POS_CASE(D, 3);
+    ADD_3POS_CASE(E, 4);
+    ADD_3POS_CASE(F, 5);
+    ADD_3POS_CASE(G, 6);
+    ADD_3POS_CASE(H, 7);
+    ADD_3POS_CASE(I, 8);
+    ADD_3POS_CASE(J, 9);
+    ADD_3POS_CASE(K, 10);
+    ADD_3POS_CASE(L, 11);
+    ADD_3POS_CASE(M, 12);
+    ADD_3POS_CASE(N, 13);
+    ADD_3POS_CASE(O, 14);
+    ADD_3POS_CASE(P, 15);
+    ADD_3POS_CASE(Q, 16);
+    ADD_3POS_CASE(R, 17);
+    ADD_3POS_CASE(S, 18);
+    ADD_3POS_CASE(T, 19);
+    ADD_3POS_CASE(U, 20);
 #else
     ADD_3POS_CASE(D, 3);
     ADD_3POS_CASE(E, 4);

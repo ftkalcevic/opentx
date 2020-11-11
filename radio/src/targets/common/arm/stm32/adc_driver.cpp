@@ -50,6 +50,8 @@
   const int8_t adcDirection[NUM_ANALOGS] = {-1,1,-1,1,  1,1,  1};
 #elif defined(PCBXLITE)
   const int8_t adcDirection[NUM_ANALOGS] = {1,-1,-1,1,  -1,1,  1,  1};
+#elif defined(PCBDIYOPENTX)
+  const int8_t adcDirection[NUM_ANALOGS] = {1,-1,-1,1,  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 #endif
 
 #if NUM_PWMSTICKS > 0

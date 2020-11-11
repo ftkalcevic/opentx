@@ -118,14 +118,15 @@ SECTIONS
 	} > SRAM
 
 	PROVIDE(end = .);
+	PROVIDE(_end = .);
 
 	.heap (NOLOAD) :
 	{
 		. = ALIGN(4);
-		PROVIDE(__heap_start__ = .);
+		PROVIDE(_heap_start = .);
 		KEEP(*(.heap))
 		. = ALIGN(4);
-		PROVIDE(__heap_end__ = .);
+		PROVIDE(_heap_end = .);
 	} > SRAM
 
 	.reserved_for_stack (NOLOAD) :

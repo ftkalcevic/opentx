@@ -107,29 +107,39 @@ uint32_t isFirmwareStart(const uint8_t * buffer);
 uint32_t isBootloaderStart(const uint8_t * buffer);
 
 // Pulses driver
-#define INTERNAL_MODULE_ON()            GPIO_SetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
-#if defined(INTMODULE_USART)
-  #define INTERNAL_MODULE_OFF()         intmoduleStop()
+#if defined(PCBDIYOPENTX)
+	#define IS_INTERNAL_MODULE_ON()         (false)
+	#define IS_EXTERNAL_MODULE_ON()         (true)
+	#define INTERNAL_MODULE_ON()            ((void)0)
+	#define INTERNAL_MODULE_OFF()           ((void)0)
+	#define EXTERNAL_MODULE_ON()            ((void)0)
+	#define EXTERNAL_MODULE_OFF()           ((void)0)
 #else
-  #define INTERNAL_MODULE_OFF()         GPIO_ResetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
-#endif
+	#define INTERNAL_MODULE_ON()            GPIO_SetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
+	#if defined(INTMODULE_USART)
+	  #define INTERNAL_MODULE_OFF()         intmoduleStop()
+	#else
+	  #define INTERNAL_MODULE_OFF()         GPIO_ResetBits(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN)
+	#endif
 
-#if !defined(PCBX9LITE) || defined(PCBX9LITES)
-  #define HARDWARE_INTERNAL_RAS
-#endif
+	#if !defined(PCBX9LITE) || defined(PCBX9LITES)
+	  #define HARDWARE_INTERNAL_RAS
+	#endif
 
-#define EXTERNAL_MODULE_ON()            EXTERNAL_MODULE_PWR_ON()
+	#define EXTERNAL_MODULE_ON()            EXTERNAL_MODULE_PWR_ON()
 
-#if defined(EXTMODULE_USART)
-  #define EXTERNAL_MODULE_OFF()         extmoduleStop()
-#else
-  #define EXTERNAL_MODULE_OFF()         EXTERNAL_MODULE_PWR_OFF()
-#endif
+	#if defined(EXTMODULE_USART)
+	  #define EXTERNAL_MODULE_OFF()         extmoduleStop()
+	#else
+	  #define EXTERNAL_MODULE_OFF()         EXTERNAL_MODULE_PWR_OFF()
+	#endif
 
-#if defined(RADIO_T12)
-#define IS_INTERNAL_MODULE_ON()         false
-#else
-#define IS_INTERNAL_MODULE_ON()         (GPIO_ReadInputDataBit(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN) == Bit_SET)
+
+	#if defined(RADIO_T12)
+		#define IS_INTERNAL_MODULE_ON()         false
+	#else
+		#define IS_INTERNAL_MODULE_ON()         (GPIO_ReadInputDataBit(INTMODULE_PWR_GPIO, INTMODULE_PWR_GPIO_PIN) == Bit_SET)
+	#endif
 #endif
 
 void intmoduleSerialStart(uint32_t baudrate, uint8_t rxEnable, uint16_t parity, uint16_t stopBits, uint16_t wordLength);
@@ -162,7 +172,7 @@ void extmoduleSendInvertedByte(uint8_t byte);
   };
   extern uint8_t jackState;
   #define TRAINER_CONNECTED()           (jackState == TRAINER_ACTIVE)
-#elif defined(PCBXLITE)
+#elif defined(PCBXLITE) || defined(PCBDIYOPENTX)
   // No Tainer jack on Taranis X-Lite
   #define TRAINER_CONNECTED()           false
 #else
@@ -324,22 +334,22 @@ enum EnumSwitchesPositions
   SW_SD0,
   SW_SD1,
   SW_SD2,
-#if defined(PCBX9) || defined(PCBXLITES) || defined(PCBX9LITES)
+#if defined(PCBX9) || defined(PCBXLITES) || defined(PCBX9LITES) || defined(PCBDIYOPENTX)
   SW_SE0,
   SW_SE1,
   SW_SE2,
 #endif
-#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E) || defined(PCBX7) || defined(PCBXLITES) || defined(PCBX9LITES)
+#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E) || defined(PCBX7) || defined(PCBXLITES) || defined(PCBX9LITES) || defined(PCBDIYOPENTX)
   SW_SF0,
   SW_SF1,
   SW_SF2,
 #endif
-#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E) || defined(PCBX9LITES)
+#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E) || defined(PCBX9LITES) || defined(PCBDIYOPENTX)
   SW_SG0,
   SW_SG1,
   SW_SG2,
 #endif
-#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E) || defined(PCBX7)
+#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E) || defined(PCBX7) || defined(PCBDIYOPENTX)
   SW_SH0,
   SW_SH1,
   SW_SH2,
@@ -361,7 +371,7 @@ enum EnumSwitchesPositions
   SW_SJ1,
   SW_SJ2,
 #endif
-#if defined(PCBX9E)
+#if defined(PCBX9E) || defined(PCBDIYOPENTX)
   SW_SI0,
   SW_SI1,
   SW_SI2,
@@ -392,6 +402,17 @@ enum EnumSwitchesPositions
   SW_SR0,
   SW_SR1,
   SW_SR2,
+#endif
+#if defined(PCBDIYOPENTX)
+  SW_SS0,
+  SW_SS1,
+  SW_SS2,
+  SW_ST0,
+  SW_ST1,
+  SW_ST2,
+  SW_SU0,
+  SW_SU1,
+  SW_SU2,
 #endif
   NUM_SWITCHES_POSITIONS
 };
@@ -449,6 +470,11 @@ enum EnumSwitchesPositions
   #define DEFAULT_SWITCH_CONFIG         (SWITCH_TOGGLE << 14) + (SWITCH_3POS << 12) + (SWITCH_2POS << 10) + (SWITCH_3POS << 8) + (SWITCH_3POS << 6) + (SWITCH_3POS << 4) + (SWITCH_3POS << 2) + (SWITCH_3POS << 0)
   #define DEFAULT_POTS_CONFIG           (POT_WITH_DETENT << 0) + (POT_WITH_DETENT << 2); // S1 = pot without detent, S2 = pot with detent
   #define DEFAULT_SLIDERS_CONFIG        (SLIDER_WITH_DETENT << 1) + (SLIDER_WITH_DETENT << 0)
+#elif defined(PCBDIYOPENTX)
+  #define NUM_SWITCHES                  21
+  #define STORAGE_NUM_SWITCHES          NUM_SWITCHES
+  #define DEFAULT_SWITCH_CONFIG         (SWITCH_3POS << 14) + (SWITCH_3POS << 12) + (SWITCH_3POS << 10) + (SWITCH_3POS << 8) + (SWITCH_3POS << 6) + (SWITCH_3POS << 4) + (SWITCH_3POS << 2) + (SWITCH_3POS << 0)
+  #define DEFAULT_POTS_CONFIG           (POT_WITHOUT_DETENT << 2) + (POT_WITHOUT_DETENT << 0)
 #endif
 
 #define STORAGE_NUM_SWITCHES_POSITIONS  (STORAGE_NUM_SWITCHES * 3)
@@ -496,6 +522,23 @@ enum Analogs {
   SLIDER2,
   SLIDER3,
   SLIDER4,
+#elif defined(PCBDIYOPENTX)
+  POT2,
+  POT3,
+  POT4,
+  POT5,
+  POT6,
+  POT7,
+  POT8,
+  POT9,
+  POT10,
+  POT11,
+  POT12,
+  POT13,
+  POT14,
+  POT15,
+  POT16,
+  POT_LAST = POT16,
 #else
   POT2,
   POT3,
@@ -608,7 +651,7 @@ extern uint16_t adcValues[NUM_ANALOGS];
   #define BATTERY_WARN                  87 // 8.7V
   #define BATTERY_MIN                   85 // 8.5V
   #define BATTERY_MAX                   115 // 11.5V
-#elif defined(PCBXLITE)
+#elif defined(PCBXLITE) || defined(PCBDIYOPENTX)
   // 2 x Li-Ion
   #define BATTERY_WARN                  66 // 6.6V
   #define BATTERY_MIN                   67 // 6.7V
@@ -628,6 +671,8 @@ extern uint16_t adcValues[NUM_ANALOGS];
   #define BATT_SCALE                    117
 #elif defined(RADIO_X9DP2019)
   #define BATT_SCALE                    117
+#elif defined(PCBDIYOPENTX)
+  #define BATT_SCALE                    100
 #else
   #define BATT_SCALE                    150
 #endif

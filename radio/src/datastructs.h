@@ -872,6 +872,20 @@ static inline void check_struct()
   CHKTYPE(union TelemetryScreenData, 24);
   CHKSIZE(ModelHeader, 12);
   CHKSIZE(CurveData, 4);
+#elif defined(PCBDIYOPENTX)
+  CHKSIZE(MixData, 20);
+  CHKSIZE(ExpoData, 17);
+  CHKSIZE(LimitData, 11);
+  CHKSIZE(LogicalSwitchData, 9);
+  CHKSIZE(CustomFunctionData, 11);
+  CHKSIZE(FlightModeData, 28 + 2*NUM_TRIMS);
+  CHKSIZE(TimerData, 11);
+  CHKSIZE(SwashRingData, 8);
+  CHKSIZE(FrSkyBarData, 6);
+  CHKSIZE(FrSkyLineData, 4);
+  CHKTYPE(union TelemetryScreenData, 24);
+  CHKSIZE(ModelHeader, 12);
+  CHKSIZE(CurveData, 4);
 #elif defined(PCBTARANIS)
   CHKSIZE(MixData, 20);
   CHKSIZE(ExpoData, 17);
