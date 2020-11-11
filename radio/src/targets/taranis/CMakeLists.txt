@@ -286,7 +286,7 @@ elseif(PCB STREQUAL DIYOPENTX)
   add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
   set(FIRMWARE_TARGET_SRC
     ${FIRMWARE_TARGET_SRC}
-    startup_stm32f429xx.c
+    startup_stm32f42_43xxx.s
     )
   set(SERIAL2_DRIVER ../common/arm/stm32/serial2_driver.cpp)
   if(STICKS STREQUAL HORUS)

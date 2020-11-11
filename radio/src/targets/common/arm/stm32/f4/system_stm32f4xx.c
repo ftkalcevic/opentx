@@ -152,7 +152,7 @@
 
 /************************* PLL Parameters *************************************/
 /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLL_M) * PLL_N */
-#if defined(PCBSTM32F412ZG)
+#if defined(PCBDIYOPENTX)
 	#define PLL_M      8
 	#define PLL_N      336
 
@@ -172,6 +172,7 @@
     /* USB OTG FS, SDIO and RNG Clock =  PLL_VCO / PLLQ */
     #define PLL_Q      7
 #endif
+
 /******************************************************************************/
 
 /**
