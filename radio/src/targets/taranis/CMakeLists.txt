@@ -286,7 +286,7 @@ elseif(PCB STREQUAL DIYOPENTX)
   add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
   set(FIRMWARE_TARGET_SRC
     ${FIRMWARE_TARGET_SRC}
-    startup_stm32f42_43xxx.s
+    startup_stm32f429xx.c
     )
   set(SERIAL2_DRIVER ../common/arm/stm32/serial2_driver.cpp)
   if(STICKS STREQUAL HORUS)
@@ -358,7 +358,11 @@ if(AUTOUPDATE)
   add_definitions(-DAUTOUPDATE)
 endif()
 
-set(HSE_VALUE 12000000)
+if(PCB STREQUAL DIYOPENTX)
+    set(HSE_VALUE 8000000)
+else()
+    set(HSE_VALUE 12000000)
+endif()
 set(SDCARD YES)
 set(EEPROM EEPROM_RLC)
 set(TARGET_DIR taranis)
